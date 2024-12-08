@@ -1,0 +1,158 @@
+---
+params:
+   new_title: "My Title!"
+title: "`r params$new_title`"
+# This  first two lines allow for the title to change with the different reports. In case you do not want to add any specific title you may just include an empty list in the loop_create_pdfs.R or in here as ""
+date: ''
+output:
+  pdf_document: 
+  fig_caption: true 
+    # to include a figure caption in all figures  
+  latex_engine: xelatex 
+  # To make this work you need to have LaTex installed. 
+  #In case you do not have it just follow what it is said in the  #Warning of R
+  html_document: default
+  word_document: default
+urlcolor: blue    
+#To make links to websites in blue
+header-includes:
+      \usepackage{graphicx}
+   \usepackage{fancyhdr} 
+   \renewcommand{\figurename}{Figure} 
+   \usepackage{float}
+   \floatplacement{figure}{H} 
+# All these lines above are to make the header of the Report
+# also to aboid that figures are floating in the text.
+---
+
+\addtolength{\headheight}{3.0cm} 
+\fancypagestyle{plain}{} 
+\pagestyle{fancy} 
+\fancyhead[R]{\includegraphics[width = 100pt]{logo_uni.png}}
+\renewcommand{\headrulewidth}{0pt} 
+
+<!-- Here in these previous lines I am adding a header with a logo  -->
+
+```{r, include=FALSE}
+library(ggplot2)
+library(stringr)
+rates = read.csv("df1.csv")
+treat = read.csv("df2.csv")
+birds = read.csv("birds_in_sites.csv")
+```
+
+<!-- Here I am loading all libraries needed and reading all files -->
+<!-- with results -->
+
+
+```{r, echo = FALSE, results = "asis"}
+input <- read.csv("id_sites.csv")#A file with the names of stakeholders
+template <- "Dear %s," #To insert the name as Dear XXX,
+  current <- input[v, ] #Here I define the name I am using
+  cat(sprintf(template, current$name))
+```
+
+
+We are the research team of the University of Oviedo that has been working on your field for the last year. Firstly, we would like to thank you bla bla bla 
+
+We have reported a total of **34 bird species** throughout the year and bla bla bla . We have also recorded the rates of predation by (*Scientific name*) in your crop bla bla bla 
+
+We would like to share with you a summary of the main results of our research in your field.
+
+
+\vspace{16pt} 
+<!-- Include some space before -->
+<font size="20"> **Summary of results** </font>
+<!-- You may want to use headings instead of the aboveline -->
+
+
+Talk a little bit about your protocols. Maybe you want to add some links to certain products or tools that you have used. This is an example of how to share a url [pheromone dispenser.](https://www.e-econex.net/es/para-plagas-agricolas/econex-cydia-pomonella-2-mg-60-dias-225.html)
+<!-- Whenever you wan to make a link to a certain issue in [] is the text you want to use and in () the link -->
+
+You may want to include a picture to exemplify fieldwork. You need to have the picture in the folder where your R project is. It is better that you have all pictures in pdf so that the final pdf is not too heavy. This is an example of our own fieldwork
+
+
+```{r, echo = FALSE, out.width = '50%', out.height= '50%', fig.align="center",fig.cap= "Field work for identificaction of XXX pest (A) trunk of tree with a carton to capture worms, (B) pitfall to capture moths"}
+knitr::include_graphics("Field_work.pdf")
+#When adding a figure you can specify the size with out.width and weight, where do tou want it and what do you want to add in the difure caption
+```
+
+The following figure shows the trends of predation rates by *Whatever name* throughout the year. 
+
+<!-- Text in *XXX* will be in italics, text in **XXX** will be in bold. -->
+
+
+```{r, echo = FALSE, out.width = '50%', out.height= '50%', fig.align="center",fig.cap= "Rates of whatever across 2024 in your field. Points depict values in surveys."}
+tmp_rates = rates[which(rates$id == v),]
+tmp_rates$date = as.Date(tmp_rates$date)
+ggplot(data=tmp_rates, aes(x = date, y = Rate_of_X)) +
+    geom_line(linewidth= 0.7)+
+    geom_point(size= 2, alpha = 0.5)+
+    ylab("Rates of whatever (prop)")+
+    xlab("")+
+    theme_classic()+
+    theme(axis.text.x = element_text(colour = "black", size = 12), 
+          axis.text.y = element_text(colour = "black", size = 12))+
+    theme(axis.line.x = element_line(color="black"),
+          axis.line.y = element_line(color="black"))+
+    theme(axis.title=element_text(size=14))
+```
+Within your crop, we compared the abundance of X in local areas with XXX and without this management (control). Here we show a comparison between them. 
+
+```{r, echo = FALSE, out.width = '50%', out.height= '50%', fig.align="center",fig.cap= "Abundance of whatever (number of individuals observed at the end of 2024) in plots within your field with X management and without it (control). Points depict observed values. Boxes represent the range of most frequent observed values and line the median (similar to average values)"}
+tmp_tr = treat[which(treat$id == v),]
+
+ggplot(tmp_tr, aes(x=plot, y=abundance_of_X)) + 
+  geom_boxplot()+
+  geom_jitter(shape=16, size = 3, alpha = 0.5, position=position_jitter(0.1))+
+  ylab("Abundance of whatever")+
+  xlab("")+
+  theme_classic()+
+    theme(axis.text = element_text(colour = "black", size = 12))+
+    theme(axis.line = element_line(color="black"))+
+    theme(axis.title=element_text(size=14))
+```
+
+\newpage
+
+<!-- Sometimes you may want to begin next section in a new page it is the way to do it -->
+
+Finally, we would like to share with you the bird species found in your field. 
+
+ \itshape
+```{r, results='asis', echo= FALSE}
+tmp_birds <- sort(birds$spp[which(birds$id == v)])
+#It can be important to sort names in alphabetic order
+tmp <- list( )
+for(j in 1:length(tmp_birds))
+{
+  tmp = c(tmp, tmp_birds[j])
+}
+
+
+for(i in 1:length(tmp))
+{
+  
+  if(i == 1)
+  {
+    cat(str_to_sentence(tmp[[1]])) 
+  }else{
+    if(i == length(tmp))
+    {
+      cat(" and ", str_to_sentence(tmp[[i]]), ".", sep = "")
+    }else{
+      cat(",", str_to_sentence(tmp[[i]]))
+  #In case you want to use common names you may use tolower after the first one.
+    }
+  }
+}
+```
+\normalfont
+
+<!-- Itshape and normalfont is telling that the text within the command will be in italics -->
+
+Bla bla bla (in case you want to thank again), provide information about your funding etc. I usually like to provide links to all this data. And finally provide a link to our research group page. 
+
+To know more about our research activities you can visit [Laboratorio de Biodiversidad y Servicios Ecosistémicos](https://beslab.net).
+
+If tou have any doubts or questions do not hesitate in contacting XXX.
