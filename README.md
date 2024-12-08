@@ -1,2 +1,5 @@
-# Rmd_loops
-Example of creating pdf files with individualized information in Rmd
+#Loop_reports_stakeholders
+In this repository I provide a code example to create multiple reports for people of interest. In this example I am creating multiple reports for farmers that have allowed me to work in their fields. This can be interesting when the number of sites is relatively high (e.g., 50) and want to provide individualized information of your observations in each field (e.g., pests throughout time, the effectiveness of certain management measures, lists of species observed). The idea is that this code can be addapted to any kind of feed back that you want to provide individualized, but for which you can do it iteratively. 
+(i) Template_for_loop Contains a template of Rmd with explanations of different things that you can do in your reports. You can customize this template for your own reports. The idea is that it is flexible enough so that many different things can be added.
+(ii) Loop_create_pdfs. Is the R script that is going to call the template to create each individualized report in a pdf. It is also commented.
+(iii) Simulate_data. I have simulted some data for these reports, I have decided to include it in case anyone wants to take a look to some easy simulations, but is not important for the aim of this repository.
